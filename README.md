@@ -1,4 +1,108 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Test Next.js 12 - Turtle Earn Widget
+
+Proyecto de prueba para integrar el Earn Widget en Next.js 12.
+
+---
+
+## ⚠️ Problema Actual - CSS Global Import
+
+Next.js no permite imports de CSS global desde node_modules excepto en `pages/_app.js`. El paquete `@turtleclub/earn-provider` está importando automáticamente `@rainbow-me/rainbowkit/styles.css` en su código bundleado, lo que causa el siguiente error:
+
+```
+Global CSS cannot be imported from files other than your Custom <App>
+Location: node_modules/@turtleclub/earn-provider/dist/index.js
+Import path: ../../../@rainbow-me/rainbowkit/dist/index.css
+```
+
+---
+
+## 🔧 Solución a Implementar (Lunes)
+
+### 1. Modificar `@turtleclub/earn-provider`
+
+**Ubicación**: `/Users/amilcarrey/Documents/TURTLE/turtle-packages` (o donde esté el paquete)
+
+**Cambios necesarios**:
+
+1. **Remover el import automático de estilos de RainbowKit** del código fuente del paquete
+   - Buscar y eliminar: `import '@rainbow-me/rainbowkit/styles.css'`
+   - Este import probablemente está en el archivo principal del paquete (index.ts o similar)
+
+2. **Actualizar la documentación del paquete** para indicar que los usuarios deben importar manualmente los estilos
+
+3. **Rebuild del paquete** después de hacer los cambios
+
+### 2. Actualizar la Documentación en `mintify-docs`
+
+Agregar instrucciones claras de instalación:
+
+#### Instalación
+
+**1. Instalar dependencias**
+
+```bash
+npm install @turtleclub/earn-provider @turtleclub/earn-widget
+```
+
+**2. Importar estilos globales en `pages/_app.js` (Next.js)**
+
+```jsx
+// pages/_app.js
+import '@rainbow-me/rainbowkit/styles.css'
+import '@turtleclub/earn-widget/styles.css'
+import { TurtleDefaultProvider } from '@turtleclub/earn-provider'
+
+function MyApp({ Component, pageProps }) {
+  return (
+    <TurtleDefaultProvider>
+      <Component {...pageProps} />
+    </TurtleDefaultProvider>
+  )
+}
+
+export default MyApp
+```
+
+**3. Usar el widget en cualquier página**
+
+```jsx
+import { useEarnDefaultAdapter } from '@turtleclub/earn-provider'
+import { EarnWidget } from '@turtleclub/earn-widget'
+
+function MyPage() {
+  const adapter = useEarnDefaultAdapter()
+
+  const config = {
+    theme: "dark",
+    campaigns: ["campaign-id"],
+    // ... resto de config
+  }
+
+  return (
+    <EarnWidget
+      adapter={adapter}
+      config={config}
+      distributorId="your-distributor-id"
+    />
+  )
+}
+```
+
+### Referencia
+
+Esta es la práctica estándar de librerías como:
+- **RainbowKit**: No importa sus propios estilos, el usuario debe hacerlo
+- **Chakra UI**: Requiere import manual de estilos
+- **Stripe Elements**: Similar patrón de importación manual
+
+### Estado Actual del Proyecto
+
+- ✅ `TurtleDefaultProvider` envuelve toda la app en `_app.js`
+- ✅ Estilos de `@turtleclub/earn-widget` importados manualmente en `_app.js`
+- ✅ Estilos de `@rainbow-me/rainbowkit` importados manualmente en `_app.js`
+- ❌ **PENDIENTE**: Remover import automático de RainbowKit styles del paquete `@turtleclub/earn-provider`
+
+---
 
 ## Getting Started
 
