@@ -8,7 +8,7 @@ const TurtleEarnWidget = dynamic(
 
 export default function Home() {
   return (
-    <div>
+    <div style={{ backgroundColor: 'black', height: '100vh' }}>
       <TurtleEarnWidget />
     </div>
   )
